@@ -1,4 +1,4 @@
-import { OSCType, OSCArg, OSCMessage, OSCTypeConverter, OSCPacket } from './models';
+import { OSCType, OSCArg, OSCMessage, OSCTypeConverter } from './models';
 
 const oscTypeConverterMap: { [key in OSCType]: OSCTypeConverter } = {
   s: {
