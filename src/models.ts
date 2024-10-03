@@ -1,7 +1,7 @@
-export type OSCType = 's' | 'i' | 'f' | 'b';
+export type OSCType = 's' | 'i' | 'f' | 'b' | 'T' | 'F';
 export type OSCArg = {
   type: OSCType;
-  value: string | number | Buffer;
+  value: string | number | Buffer | boolean;
 };
 
 export type OSCMessage = {
@@ -10,6 +10,6 @@ export type OSCMessage = {
 };
 
 export type OSCTypeConverter = {
-  toBuffer: (value: number | string | Buffer) => Buffer | undefined;
-  fromString: (string: string) => number | string | Buffer;
+  toBuffer: (value: string | number | Buffer | boolean) => Buffer | undefined;
+  fromString: (string: string) => string | number | Buffer | boolean;
 };

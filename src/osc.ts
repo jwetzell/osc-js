@@ -1,4 +1,4 @@
-import { OSCType, OSCArg, OSCMessage, OSCTypeConverter } from './models';
+import { OSCType, OSCArg, OSCMessage, OSCTypeConverter, OSCPacket } from './models';
 
 const oscTypeConverterMap: { [key in OSCType]: OSCTypeConverter } = {
   s: {
@@ -51,6 +51,18 @@ const oscTypeConverterMap: { [key in OSCType]: OSCTypeConverter } = {
     },
     fromString: (string: string) => Buffer.from(string, 'hex'),
   },
+  T: {
+    toBuffer: () => {
+      return Buffer.alloc(0)
+    },
+    fromString: (string: string) => true
+  },
+  F: {
+    toBuffer: () => {
+      return Buffer.alloc(0)
+    },
+    fromString: (string: string) => false
+  }
 };
 
 function argsToBuffer(args: OSCArg[]) {
@@ -75,35 +87,18 @@ function argsToBuffer(args: OSCArg[]) {
   return Buffer.concat(argBuffers);
 }
 
-function toBuffer({ address, args }: OSCMessage) {
-  const addressBuffer = oscTypeConverterMap.s.toBuffer(address);
+export function messageToBuffer(message: OSCMessage) {
+
+  const addressBuffer = oscTypeConverterMap.s.toBuffer(message.address);
   if (addressBuffer === undefined) {
     throw new Error('problem encoding address');
   }
 
-  const typeString = args.map((arg) => arg.type).join('');
+  const typeString = message.args.map((arg) => arg.type).join('');
   const typesBuffer = oscTypeConverterMap.s.toBuffer(`,${typeString}`);
   if (typesBuffer === undefined) {
     throw new Error('problem encoding types');
   }
-  const argsBuffer = argsToBuffer(args);
+  const argsBuffer = argsToBuffer(message.args);
   return Buffer.concat([addressBuffer, typesBuffer, argsBuffer]);
 }
-
-function stringArgToTypedArg(rawArg: string, type: OSCType = 's') {
-  const typeConverter = oscTypeConverterMap[type];
-  if (typeConverter === undefined) {
-    throw new Error('osc type error: unknown type '.concat(type));
-  }
-
-  if (typeConverter.fromString === undefined) {
-    throw new Error('osc type error: no string converter for type '.concat(type));
-  }
-
-  return typeConverter.fromString(rawArg);
-}
-
-export default {
-  toBuffer,
-  stringArgToTypedArg,
-};
