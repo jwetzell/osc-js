@@ -14,6 +14,24 @@ const oscTypeConverterMap: { [key in OSCType]: OSCTypeConverter } = {
       throw new Error('osc type s toBuffer called with non string value');
     },
     fromString: (string: string) => string,
+    fromBuffer: (bytes: Buffer) => {
+      let stringEnd = 0;
+      let stringPaddingEnd = 0;
+      for (let index = 0; index < bytes.length; index++) {
+        if(bytes[index] === 0){
+          stringEnd = index;
+          stringPaddingEnd = index + 1;
+          const stringPadding = 4-(stringEnd+1) % 4;
+
+          if(stringPadding < 4){
+            stringPaddingEnd += stringPadding;
+          }
+          break;
+        }
+      }
+
+      return [bytes.toString('ascii', 0, stringEnd), bytes.subarray(stringPaddingEnd)]
+    }
   },
   f: {
     toBuffer: (number) => {
@@ -101,4 +119,30 @@ export function messageToBuffer(message: OSCMessage) {
   }
   const argsBuffer = argsToBuffer(message.args);
   return Buffer.concat([addressBuffer, typesBuffer, argsBuffer]);
+}
+
+export function messageFromBuffer(bytes: Buffer): OSCMessage | undefined {
+  if(bytes[0] !== 47){
+    throw new Error('osc message must start with a /')
+  }
+
+  const oscArgs: OSCArg[] = []
+
+  if(oscTypeConverterMap.s.fromBuffer) {
+    const [address, bytesAfterAddress] = oscTypeConverterMap.s.fromBuffer(bytes)
+    if(typeof address === 'string'){
+      console.log(`address: ${address}`)
+      console.log(`bytesAfterAddresss: ${bytesAfterAddress}`)
+      let [typeString, bytesAfterType] = oscTypeConverterMap.s.fromBuffer(bytesAfterAddress)
+      console.log(`typeString: ${typeString}`)
+      console.log(`bytesAfterType: ${bytesAfterType}`)
+      if(typeof typeString === 'string'){
+        if(!typeString.startsWith(',')){
+          throw new Error('osc type string must start with a ,')
+        }
+      }
+    }
+  }
+
+  return
 }
