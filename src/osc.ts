@@ -73,14 +73,13 @@ const oscTypeConverterMap: { [key in OSCType]: OSCTypeConverter } = {
     toBuffer: () => {
       return Buffer.alloc(0)
     },
-    fromString: (string: string) => true
+    fromString: (string: string) => true,
   },
   F: {
     toBuffer: () => {
       return Buffer.alloc(0)
     },
-    fromString: (string: string) => false
-  }
+    fromString: (string: string) => false,
 };
 
 function argsToBuffer(args: OSCArg[]) {
