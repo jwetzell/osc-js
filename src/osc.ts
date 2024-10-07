@@ -77,7 +77,7 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
         const sizeBuffer = oscTypeConverterMap.i.toBuffer(data.length);
         if (sizeBuffer) {
           const padSize = 4 - (data.length % 4);
-          const padBuffer = Buffer.from(Array(padSize).fill(0));
+          const padBuffer = padSize < 4 ? Buffer.from(Array(padSize).fill(0)) : Buffer.from([]);
           return Buffer.concat([sizeBuffer, data, padBuffer]);
         }
       }
