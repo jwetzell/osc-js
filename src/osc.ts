@@ -43,6 +43,14 @@ const oscTypeConverterMap: { [key in OSCType]: OSCTypeConverter } = {
       throw new Error('osc type f toBuffer called with non number value');
     },
     fromString: (string: string) => Number.parseFloat(string),
+    fromBuffer: (buffer) => {
+      if (buffer.length < 4) {
+        throw new Error('not enough bytes to read a osc float');
+      }
+
+      const value = buffer.readFloatBE();
+      return [value, buffer.subarray(4)];
+    },
   },
   i: {
     toBuffer: (number) => {
@@ -54,6 +62,14 @@ const oscTypeConverterMap: { [key in OSCType]: OSCTypeConverter } = {
       throw new Error('osc type i toBuffer called with non number value');
     },
     fromString: (string: string) => Number.parseInt(string, 10),
+    fromBuffer: (buffer) => {
+      if (buffer.length < 4) {
+        throw new Error('not enough bytes to read a osc integer');
+      }
+
+      const value = buffer.readInt32BE();
+      return [value, buffer.subarray(4)];
+    },
   },
   b: {
     toBuffer: (data) => {
@@ -68,18 +84,39 @@ const oscTypeConverterMap: { [key in OSCType]: OSCTypeConverter } = {
       throw new Error('osc type b toBuffer called with non Buffer value');
     },
     fromString: (string: string) => Buffer.from(string, 'hex'),
+    fromBuffer: (buffer) => {
+      const [blobLength, blobBytes] = oscTypeConverterMap.i.fromBuffer(buffer);
+      if (typeof blobLength === 'number'){
+        if(blobBytes.length < blobLength){
+         throw new Error('not enough bytes left for blob length specified') 
+        }
+        const value = blobBytes.subarray(0,blobLength)
+        const blobPadding = 4- (blobLength %4)
+        const blobEnd = blobPadding < 4 ? blobLength + blobPadding : blobLength
+        return [value, blobBytes.subarray(blobEnd)]
+      } else {
+        throw new Error('unexpected value for blob length')
+      }
+    },
   },
   T: {
     toBuffer: () => {
       return Buffer.alloc(0)
     },
     fromString: (string: string) => true,
+    fromBuffer: (buffer) => {
+      return [true, buffer];
+    },
   },
   F: {
     toBuffer: () => {
       return Buffer.alloc(0)
     },
     fromString: (string: string) => false,
+    fromBuffer: (buffer) => {
+      return [false, buffer];
+    },
+  }
 };
 
 function argsToBuffer(args: OSCArg[]) {
