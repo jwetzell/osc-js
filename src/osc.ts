@@ -11,7 +11,7 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
         }
         return Buffer.from(oscString, 'ascii');
       }
-      throw new Error('osc type s toBuffer called with non string value');
+      throw new TypeError('osc type s toBuffer called with non string value');
     },
     fromString: (string: string) => string,
     fromBuffer: (bytes: Buffer) => {
@@ -40,7 +40,7 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
         buffer.writeFloatBE(number);
         return buffer;
       }
-      throw new Error('osc type f toBuffer called with non number value');
+      throw new TypeError('osc type f toBuffer called with non number value');
     },
     fromString: (string: string) => Number.parseFloat(string),
     fromBuffer: (buffer) => {
@@ -59,7 +59,7 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
         buffer.writeInt32BE(number);
         return buffer;
       }
-      throw new Error('osc type i toBuffer called with non number value');
+      throw new TypeError('osc type i toBuffer called with non number value');
     },
     fromString: (string: string) => Number.parseInt(string, 10),
     fromBuffer: (buffer) => {
@@ -81,7 +81,7 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
           return Buffer.concat([sizeBuffer, data, padBuffer]);
         }
       }
-      throw new Error('osc type b toBuffer called with non Buffer value');
+      throw new TypeError('osc type b toBuffer called with non Buffer value');
     },
     fromString: (string: string) => Buffer.from(string, 'hex'),
     fromBuffer: (buffer) => {
@@ -126,11 +126,7 @@ function argsToBuffer(args: OSCArg[]) {
     const arg = args[index];
     const typeConverter = oscTypeConverterMap[arg.type];
     if (typeConverter === undefined) {
-      throw new Error('osc type error: unknown type '.concat(arg.type));
-    }
-
-    if (typeConverter.fromString === undefined) {
-      throw new Error('osc type error: no string converter for type '.concat(arg.type));
+      throw new TypeError('unknown type '.concat(arg.type));
     }
 
     const buffer = typeConverter.toBuffer(arg.value);
