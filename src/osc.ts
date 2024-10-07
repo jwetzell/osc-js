@@ -1,6 +1,6 @@
 import { OSCType, OSCArg, OSCMessage, OSCTypeConverter } from './models';
 
-const oscTypeConverterMap: { [key in OSCType]: OSCTypeConverter } = {
+const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
   s: {
     toBuffer: (string) => {
       if (typeof string === 'string') {
@@ -164,21 +164,36 @@ export function messageFromBuffer(bytes: Buffer): OSCMessage | undefined {
 
   const oscArgs: OSCArg[] = []
 
-  if(oscTypeConverterMap.s.fromBuffer) {
-    const [address, bytesAfterAddress] = oscTypeConverterMap.s.fromBuffer(bytes)
-    if(typeof address === 'string'){
-      console.log(`address: ${address}`)
-      console.log(`bytesAfterAddresss: ${bytesAfterAddress}`)
-      let [typeString, bytesAfterType] = oscTypeConverterMap.s.fromBuffer(bytesAfterAddress)
-      console.log(`typeString: ${typeString}`)
-      console.log(`bytesAfterType: ${bytesAfterType}`)
-      if(typeof typeString === 'string'){
-        if(!typeString.startsWith(',')){
-          throw new Error('osc type string must start with a ,')
+  const [address, bytesAfterAddress] = oscTypeConverterMap.s.fromBuffer(bytes);
+  if(typeof address === 'string'){
+    let [typeString, bytesAfterType] = oscTypeConverterMap.s.fromBuffer(bytesAfterAddress);
+    if (typeof typeString === 'string') {
+      if (!typeString.startsWith(',')) {
+        throw new Error('osc type string must start with a ,');
+      }
+      let argsBuffer = bytesAfterType
+      for (let index = 1; index < typeString.length; index++) {
+        const argType = typeString.charAt(index) as OSCType;
+
+        const oscTypeConverter = oscTypeConverterMap[argType]
+        if(oscTypeConverter === undefined){
+          throw new Error('unknown OSC type')
         }
+        const [value, remainingBytes] = oscTypeConverter.fromBuffer(argsBuffer)
+        if(value !== undefined){
+          const arg: OSCArg = {
+            type: argType,
+            value: value
+          }
+          oscArgs.push(arg)
+        }
+        argsBuffer = remainingBytes;
+      }
+
+      return {
+        address,
+        args: oscArgs
       }
     }
   }
-
-  return
 }
