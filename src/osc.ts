@@ -18,20 +18,20 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
       let stringEnd = 0;
       let stringPaddingEnd = 0;
       for (let index = 0; index < bytes.length; index++) {
-        if(bytes[index] === 0){
+        if (bytes[index] === 0) {
           stringEnd = index;
           stringPaddingEnd = index + 1;
-          const stringPadding = 4-(stringEnd+1) % 4;
+          const stringPadding = 4 - ((stringEnd + 1) % 4);
 
-          if(stringPadding < 4){
+          if (stringPadding < 4) {
             stringPaddingEnd += stringPadding;
           }
           break;
         }
       }
 
-      return [bytes.toString('ascii', 0, stringEnd), bytes.subarray(stringPaddingEnd)]
-    }
+      return [bytes.toString('ascii', 0, stringEnd), bytes.subarray(stringPaddingEnd)];
+    },
   },
   f: {
     toBuffer: (number) => {
@@ -86,22 +86,22 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
     fromString: (string: string) => Buffer.from(string, 'hex'),
     fromBuffer: (buffer) => {
       const [blobLength, blobBytes] = oscTypeConverterMap.i.fromBuffer(buffer);
-      if (typeof blobLength === 'number'){
-        if(blobBytes.length < blobLength){
-         throw new Error('not enough bytes left for blob length specified') 
+      if (typeof blobLength === 'number') {
+        if (blobBytes.length < blobLength) {
+          throw new Error('not enough bytes left for blob length specified');
         }
-        const value = blobBytes.subarray(0,blobLength)
-        const blobPadding = 4- (blobLength %4)
-        const blobEnd = blobPadding < 4 ? blobLength + blobPadding : blobLength
-        return [value, blobBytes.subarray(blobEnd)]
+        const value = blobBytes.subarray(0, blobLength);
+        const blobPadding = 4 - (blobLength % 4);
+        const blobEnd = blobPadding < 4 ? blobLength + blobPadding : blobLength;
+        return [value, blobBytes.subarray(blobEnd)];
       } else {
-        throw new Error('unexpected value for blob length')
+        throw new Error('unexpected value for blob length');
       }
     },
   },
   T: {
     toBuffer: () => {
-      return Buffer.alloc(0)
+      return Buffer.alloc(0);
     },
     fromString: (string: string) => true,
     fromBuffer: (buffer) => {
@@ -110,13 +110,13 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
   },
   F: {
     toBuffer: () => {
-      return Buffer.alloc(0)
+      return Buffer.alloc(0);
     },
     fromString: (string: string) => false,
     fromBuffer: (buffer) => {
       return [false, buffer];
     },
-  }
+  },
 };
 
 function argsToBuffer(args: OSCArg[]) {
@@ -138,7 +138,6 @@ function argsToBuffer(args: OSCArg[]) {
 }
 
 export function messageToBuffer(message: OSCMessage) {
-
   const addressBuffer = oscTypeConverterMap.s.toBuffer(message.address);
   if (addressBuffer === undefined) {
     throw new Error('problem encoding address');
@@ -154,42 +153,42 @@ export function messageToBuffer(message: OSCMessage) {
 }
 
 export function messageFromBuffer(bytes: Buffer): OSCMessage | undefined {
-  if(bytes[0] !== 47){
-    throw new Error('osc message must start with a /')
+  if (bytes[0] !== 47) {
+    throw new Error('osc message must start with a /');
   }
 
-  const oscArgs: OSCArg[] = []
+  const oscArgs: OSCArg[] = [];
 
   const [address, bytesAfterAddress] = oscTypeConverterMap.s.fromBuffer(bytes);
-  if(typeof address === 'string'){
+  if (typeof address === 'string') {
     let [typeString, bytesAfterType] = oscTypeConverterMap.s.fromBuffer(bytesAfterAddress);
     if (typeof typeString === 'string') {
       if (!typeString.startsWith(',')) {
         throw new Error('osc type string must start with a ,');
       }
-      let argsBuffer = bytesAfterType
+      let argsBuffer = bytesAfterType;
       for (let index = 1; index < typeString.length; index++) {
         const argType = typeString.charAt(index) as OSCType;
 
-        const oscTypeConverter = oscTypeConverterMap[argType]
-        if(oscTypeConverter === undefined){
-          throw new Error('unknown OSC type')
+        const oscTypeConverter = oscTypeConverterMap[argType];
+        if (oscTypeConverter === undefined) {
+          throw new Error('unknown OSC type');
         }
-        const [value, remainingBytes] = oscTypeConverter.fromBuffer(argsBuffer)
-        if(value !== undefined){
+        const [value, remainingBytes] = oscTypeConverter.fromBuffer(argsBuffer);
+        if (value !== undefined) {
           const arg: OSCArg = {
             type: argType,
-            value: value
-          }
-          oscArgs.push(arg)
+            value: value,
+          };
+          oscArgs.push(arg);
         }
         argsBuffer = remainingBytes;
       }
 
       return {
         address,
-        args: oscArgs
-      }
+        args: oscArgs,
+      };
     }
   }
 }
