@@ -11,6 +11,5 @@ export type OSCMessage = {
 
 export type OSCTypeConverter = {
   toBuffer: (value: string | number | Buffer | boolean) => Buffer | undefined;
-  fromString: (string: string) => string | number | Buffer | boolean;
   fromBuffer: (buffer: Buffer) => [string | number | Buffer | boolean | undefined, Buffer];
 };

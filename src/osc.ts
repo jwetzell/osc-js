@@ -13,7 +13,6 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
       }
       throw new TypeError('osc type s toBuffer called with non string value');
     },
-    fromString: (string: string) => string,
     fromBuffer: (bytes: Buffer) => {
       let stringEnd = 0;
       let stringPaddingEnd = 0;
@@ -42,7 +41,6 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
       }
       throw new TypeError('osc type f toBuffer called with non number value');
     },
-    fromString: (string: string) => Number.parseFloat(string),
     fromBuffer: (buffer) => {
       if (buffer.length < 4) {
         throw new Error('not enough bytes to read a osc float');
@@ -61,7 +59,6 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
       }
       throw new TypeError('osc type i toBuffer called with non number value');
     },
-    fromString: (string: string) => Number.parseInt(string, 10),
     fromBuffer: (buffer) => {
       if (buffer.length < 4) {
         throw new Error('not enough bytes to read a osc integer');
@@ -83,7 +80,6 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
       }
       throw new TypeError('osc type b toBuffer called with non Buffer value');
     },
-    fromString: (string: string) => Buffer.from(string, 'hex'),
     fromBuffer: (buffer) => {
       const [blobLength, blobBytes] = oscTypeConverterMap.i.fromBuffer(buffer);
       if (typeof blobLength === 'number') {
@@ -103,7 +99,6 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
     toBuffer: () => {
       return Buffer.alloc(0);
     },
-    fromString: (string: string) => true,
     fromBuffer: (buffer) => {
       return [true, buffer];
     },
@@ -112,7 +107,6 @@ const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
     toBuffer: () => {
       return Buffer.alloc(0);
     },
-    fromString: (string: string) => false,
     fromBuffer: (buffer) => {
       return [false, buffer];
     },
