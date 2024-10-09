@@ -1,8 +1,8 @@
-name: Publish to npmjs
+name: Publish @jwetzell/osc to npmjs
 on:
   push:
     tags:        
-      - '*'
+      - 'osc/*'
 jobs:
   publish-lib:
     permissions:
@@ -18,9 +18,9 @@ jobs:
           cache-dependency-path: 'package-lock.json'
 
       - name: Install Node.js dependencies
-        run: npm ci
+        run: npm ci --workspace @jwetzell/osc
 
       - name: Publish to NPM
-        run: npm publish --provenance --access=public
+        run: npm publish --provenance --access=public --workspace @jwetzell/osc
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
