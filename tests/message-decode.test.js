@@ -73,7 +73,7 @@ describe('OSC Message Decoding', () => {
       () => {
         osc.messageFromBuffer(Buffer.from('68656c6c6f00002c660000420a0000', 'hex'));
       },
-      { name: /^Error$/, message:/must start with/ }
+      { name: /^Error$/, message: /must start with/ }
     );
   });
 
@@ -82,7 +82,7 @@ describe('OSC Message Decoding', () => {
       () => {
         osc.messageFromBuffer(Buffer.from('2f68656c6c6f000066000000420a00', 'hex'));
       },
-      { name: /^Error$/, message:/type string must start with/ }
+      { name: /^Error$/, message: /type string must start with/ }
     );
   });
 
@@ -91,7 +91,7 @@ describe('OSC Message Decoding', () => {
       () => {
         osc.messageFromBuffer(Buffer.from('2f68656c6c6f00002c7a0000420a0000', 'hex'));
       },
-      { name: /^Error$/, message:/unknown/ }
+      { name: /^Error$/, message: /unknown/ }
     );
   });
 
@@ -100,7 +100,7 @@ describe('OSC Message Decoding', () => {
       () => {
         osc.messageFromBuffer(Buffer.from('2f68656c6c6f00002c660000420a00', 'hex'));
       },
-      { name: /^Error$/, message:/not enough bytes/ }
+      { name: /^Error$/, message: /not enough bytes/ }
     );
   });
 
@@ -109,7 +109,7 @@ describe('OSC Message Decoding', () => {
       () => {
         osc.messageFromBuffer(Buffer.from('2f68656c6c6f00002c690000000000', 'hex'));
       },
-      { name: /^Error$/, message:/not enough bytes/ }
+      { name: /^Error$/, message: /not enough bytes/ }
     );
   });
 
@@ -118,7 +118,7 @@ describe('OSC Message Decoding', () => {
       () => {
         osc.messageFromBuffer(Buffer.from('2f68656c6c6f00002c62000000000004626c6f', 'hex'));
       },
-      { name: /^Error$/, message:/not enough bytes/ }
+      { name: /^Error$/, message: /not enough bytes/ }
     );
   });
 });
