@@ -1,7 +1,7 @@
 name: Publish @jwetzell/osc to npmjs
 on:
   push:
-    tags:        
+    tags:
       - 'osc/*'
 jobs:
   publish-lib:
