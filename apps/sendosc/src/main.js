@@ -4,7 +4,8 @@ const { Option, program } = require('commander');
 const dgram = require('dgram');
 const net = require('net');
 const slip = require('slip');
-const osc = require('./osc');
+const osc = require('@jwetzell/osc');
+const {argToTypedArg} = require('./utils')
 const packageInfo = require('../package.json');
 
 program.name(packageInfo.name);
@@ -25,11 +26,11 @@ program.action((options) => {
 
     return {
       type: argType,
-      value: osc.argToTypedArg(rawArg, argType),
+      value: argToTypedArg(rawArg, argType),
     };
   });
 
-  let oscMsgBuffer = osc.toBuffer({
+  let oscMsgBuffer = osc.messageToBuffer({
     address,
     args: typedArgs,
   });
