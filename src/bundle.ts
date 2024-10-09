@@ -30,7 +30,6 @@ export function bundleFromBuffer(bytes: Buffer): OSCBundle | undefined {
         }
   
         const bundleContentBytes = remainingBytes.subarray(0, contentSize);
-        console.log(bundleContentBytes);
   
         if (bundleContentBytes[0] === 35) {
           // # character indicating contents is a bundle
