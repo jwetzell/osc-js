@@ -131,7 +131,7 @@ function argsToBuffer(args: OSCArg[]) {
   return Buffer.concat(argBuffers);
 }
 
-export function messageToBuffer(message: OSCMessage) {
+export function messageToBuffer(message: OSCMessage): Buffer {
   const addressBuffer = oscTypeConverterMap.s.toBuffer(message.address);
   if (addressBuffer === undefined) {
     throw new Error('problem encoding address');
