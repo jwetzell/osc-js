@@ -3,7 +3,9 @@
   "version": "1.0.1",
   "description": "Simple NodeJS utility for sending osc",
   "main": "dist/main.js",
-  "bin": "dist/main.js",
+  "bin": {
+    "sendosc": "dist/main.js"
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "esbuild src/main.js --bundle --platform=node --outfile=dist/main.js",
@@ -14,7 +16,10 @@
     "email": "me@jwetzell.com",
     "url": "https://jwetzell.com"
   },
-  "repository": "https://github.com/jwetzell/osc-js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jwetzell/osc-js.git"
+  },
   "license": "MIT",
   "dependencies": {
     "commander": "^11.0.0",

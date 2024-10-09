@@ -19,7 +19,10 @@
     "email": "me@jwetzell.com",
     "url": "https://jwetzell.com"
   },
-  "repository": "https://github.com/jwetzell/osc-js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jwetzell/osc-js.git"
+  },
   "license": "MIT",
   "devDependencies": {
     "@types/node": "22.7.4",
