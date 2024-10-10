@@ -2,12 +2,12 @@ import { messageFromBuffer, messageToBuffer } from './message';
 import { OSCBundle } from './models';
 import { oscTypeConverterMap } from './osc-types';
 
-export function bundleFromBuffer(bytes: Buffer): OSCBundle | undefined {
+export function bundleFromBuffer(bytes: Uint8Array): OSCBundle | undefined {
   if (bytes.length < 8) {
     throw new Error('bundle has to be at least 20 bytes');
   }
 
-  if (bytes.subarray(0, 7).toString('ascii') !== '#bundle') {
+  if (new TextDecoder().decode(bytes.subarray(0, 7)) !== '#bundle') {
     throw new Error('bundle must start with #bundle');
   }
 
@@ -59,7 +59,7 @@ export function bundleFromBuffer(bytes: Buffer): OSCBundle | undefined {
   };
 }
 
-export function bundleToBuffer(bundle: OSCBundle): Buffer {
+export function bundleToBuffer(bundle: OSCBundle): Uint8Array {
   const headerBuffer = oscTypeConverterMap.s.toBuffer('#bundle');
 
   if (headerBuffer === undefined) {
@@ -72,7 +72,9 @@ export function bundleToBuffer(bundle: OSCBundle): Buffer {
     throw new Error('problem encoding buffer time tag');
   }
 
-  const contentsBuffers: Buffer[] = [];
+  const contentsBuffers: Uint8Array[] = [];
+
+  let contentsBuffersTotalLength = 0;
 
   bundle.contents.forEach((bundleContent) => {
     if ('address' in bundleContent) {
@@ -80,10 +82,25 @@ export function bundleToBuffer(bundle: OSCBundle): Buffer {
       const contentSizeBuffer = oscTypeConverterMap.i.toBuffer(contentBuffer.length);
 
       if (contentBuffer && contentSizeBuffer) {
-        contentsBuffers.push(Buffer.concat([contentSizeBuffer, contentBuffer]));
+        const buffer = new Uint8Array(contentSizeBuffer.length + contentBuffer.length)
+        buffer.set(contentSizeBuffer, 0);
+        buffer.set(contentBuffer, contentSizeBuffer.length)
+        contentsBuffers.push(buffer);
+        contentsBuffersTotalLength += buffer.length
       }
     }
   });
 
-  return Buffer.concat([headerBuffer, timeTagBuffer, ...contentsBuffers]);
+  const buffer = new Uint8Array(headerBuffer.length + timeTagBuffer.length + contentsBuffersTotalLength)
+  let offset = 0
+  buffer.set(headerBuffer, offset)
+  offset += headerBuffer.length
+  buffer.set(timeTagBuffer, offset)
+  offset += timeTagBuffer.length
+  contentsBuffers.forEach((contentBuffer)=>{
+    buffer.set(contentBuffer, offset)
+    offset += contentBuffer.length
+  })
+  
+  return buffer;
 }

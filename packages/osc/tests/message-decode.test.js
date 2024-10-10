@@ -26,7 +26,7 @@ const tests = [
   {
     description: 'simple address blob arg',
     bytes: Buffer.from('2f68656c6c6f00002c62000000000004626c6f62', 'hex'),
-    expected: { address: '/hello', args: [{ type: 'b', value: Buffer.from('blob') }] },
+    expected: { address: '/hello', args: [{ type: 'b', value: new TextEncoder().encode('blob') }] },
   },
   {
     description: 'simple address True arg',

@@ -1,7 +1,7 @@
 export type OSCType = 's' | 'i' | 'f' | 'b' | 'T' | 'F' | 't';
 export type OSCArg = {
   type: OSCType;
-  value: string | number | Buffer | boolean | OSCTimeTag;
+  value: string | number | Uint8Array | boolean | OSCTimeTag;
 };
 
 export type OSCTimeTag = [number, number];
@@ -17,6 +17,6 @@ export type OSCMessage = {
 };
 
 export type OSCTypeConverter = {
-  toBuffer: (value: string | number | Buffer | boolean | OSCTimeTag) => Buffer | undefined;
-  fromBuffer: (buffer: Buffer) => [string | number | Buffer | boolean | OSCTimeTag | undefined, Buffer];
+  toBuffer: (value: string | number | Uint8Array | boolean | OSCTimeTag) => Uint8Array | undefined;
+  fromBuffer: (buffer: Uint8Array) => [string | number | Uint8Array | boolean | OSCTimeTag | undefined, Uint8Array];
 };

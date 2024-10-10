@@ -9,11 +9,11 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
         if (padSize < 4) {
           oscString = oscString.padEnd(oscString.length + padSize, '\u0000');
         }
-        return Buffer.from(oscString, 'ascii');
+        return new TextEncoder().encode(oscString);
       }
       throw new TypeError('osc type s toBuffer called with non string value');
     },
-    fromBuffer: (bytes: Buffer) => {
+    fromBuffer: (bytes) => {
       let stringEnd = 0;
       let stringPaddingEnd = 0;
       for (let index = 0; index < bytes.length; index++) {
@@ -29,15 +29,15 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
         }
       }
 
-      return [bytes.toString('ascii', 0, stringEnd), bytes.subarray(stringPaddingEnd)];
+      return [new TextDecoder().decode(bytes.subarray(0, stringEnd)), bytes.subarray(stringPaddingEnd)];
     },
   },
   f: {
     toBuffer: (number) => {
       if (typeof number === 'number') {
-        const buffer = Buffer.alloc(4);
-        buffer.writeFloatBE(number);
-        return buffer;
+        const view = new DataView(new ArrayBuffer(4));
+        view.setFloat32(0, number);
+        return new Uint8Array(view.buffer);
       }
       throw new TypeError('osc type f toBuffer called with non number value');
     },
@@ -45,17 +45,22 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
       if (buffer.length < 4) {
         throw new Error('not enough bytes to read a osc float');
       }
+      const view = new DataView(new ArrayBuffer(4));
 
-      const value = buffer.readFloatBE();
+      buffer.slice(0, 4).forEach((byte, index) => {
+        view.setUint8(index, byte);
+      });
+
+      const value = view.getFloat32(0);
       return [value, buffer.subarray(4)];
     },
   },
   i: {
     toBuffer: (number) => {
       if (typeof number === 'number') {
-        const buffer = Buffer.alloc(4);
-        buffer.writeInt32BE(number);
-        return buffer;
+        const view = new DataView(new ArrayBuffer(4));
+        view.setInt32(0, number);
+        return new Uint8Array(view.buffer);
       }
       throw new TypeError('osc type i toBuffer called with non number value');
     },
@@ -64,21 +69,33 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
         throw new Error('not enough bytes to read a osc integer');
       }
 
-      const value = buffer.readInt32BE();
+      const view = new DataView(new ArrayBuffer(4));
+
+      buffer.slice(0, 4).forEach((byte, index) => {
+        view.setUint8(index, byte);
+      });
+
+      const value = view.getInt32(0);
       return [value, buffer.subarray(4)];
     },
   },
   b: {
     toBuffer: (data) => {
-      if (Buffer.isBuffer(data)) {
+      if (data instanceof Uint8Array) {
         const sizeBuffer = oscTypeConverterMap.i.toBuffer(data.length);
         if (sizeBuffer) {
-          const padSize = 4 - (data.length % 4);
-          const padBuffer = padSize < 4 ? Buffer.from(Array(padSize).fill(0)) : Buffer.from([]);
-          return Buffer.concat([sizeBuffer, data, padBuffer]);
+          let padSize = 4 - (data.length % 4);
+          if (padSize === 4) {
+            padSize = 0;
+          }
+
+          const buffer = new Uint8Array(4 + data.length + padSize);
+          buffer.set(sizeBuffer);
+          buffer.set(data, 4);
+          return buffer;
         }
       }
-      throw new TypeError('osc type b toBuffer called with non Buffer value');
+      throw new TypeError('osc type b toBuffer called with non Uint8Array value');
     },
     fromBuffer: (buffer) => {
       const [blobLength, blobBytes] = oscTypeConverterMap.i.fromBuffer(buffer);
@@ -97,7 +114,7 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
   },
   T: {
     toBuffer: () => {
-      return Buffer.alloc(0);
+      return new Uint8Array(0);
     },
     fromBuffer: (buffer) => {
       return [true, buffer];
@@ -105,7 +122,7 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
   },
   F: {
     toBuffer: () => {
-      return Buffer.alloc(0);
+      return new Uint8Array(0);
     },
     fromBuffer: (buffer) => {
       return [false, buffer];
@@ -135,7 +152,10 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
       const fractionalBuffer = oscTypeConverterMap.i.toBuffer(fractional);
 
       if (secondsBuffer && fractionalBuffer) {
-        return Buffer.concat([secondsBuffer, fractionalBuffer]);
+        const buffer = new Uint8Array(8);
+        buffer.set(secondsBuffer);
+        buffer.set(fractionalBuffer, 4);
+        return buffer;
       }
     },
     fromBuffer: (buffer) => {
