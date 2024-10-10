@@ -2,15 +2,13 @@
   "name": "makeosc",
   "version": "0.1.0",
   "description": "Simple NodeJS utility for generating osc buffers",
-  "main": "dist/main.js",
+  "main": "src/main.js",
   "bin": {
-    "makeosc": "dist/main.js"
+    "makeosc": "src/main.js"
   },
-  "scripts": {
-    "prebuild": "rimraf dist",
-    "build": "esbuild src/main.js --bundle --platform=node --outfile=dist/main.js",
-    "prepack": "npm run build"
-  },
+  "files": [
+    "src/"
+  ],
   "author": {
     "name": "Joel Wetzell",
     "email": "me@jwetzell.com",
@@ -25,9 +23,5 @@
     "@jwetzell/osc": "0.2.2",
     "commander": "^11.0.0",
     "slip": "^1.0.2"
-  },
-  "devDependencies": {
-    "esbuild": "0.24.0",
-    "rimraf": "6.0.1"
   }
 }
