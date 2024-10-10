@@ -1,8 +1,8 @@
-name: Publish makeosc to npmjs
+name: Publish readosc to npmjs
 on:
   push:
     tags:
-      - 'makeosc/*'
+      - 'readosc/*'
 jobs:
   publish:
     permissions:
@@ -17,8 +17,8 @@ jobs:
           cache: 'npm'
           cache-dependency-path: './package-lock.json'
       - name: Install Node.js dependencies
-        run: npm ci --workspace=makeosc
+        run: npm ci --workspace=readosc
       - name: Publish to NPM
-        run: npm publish --provenance --access=public --workspace=makeosc
+        run: npm publish --provenance --access=public --workspace=readosc
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
