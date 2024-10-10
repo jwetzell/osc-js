@@ -18,12 +18,12 @@ function argsToBuffer(args: OSCArg[]) {
       argBuffersTotalLength += buffer.length;
     }
   }
-  const buffer = new Uint8Array(argBuffersTotalLength)
+  const buffer = new Uint8Array(argBuffersTotalLength);
   let offset = 0;
-  argBuffers.forEach((argBuffer)=>{
-    buffer.set(argBuffer,offset)
-    offset += argBuffer.length
-  })
+  argBuffers.forEach((argBuffer) => {
+    buffer.set(argBuffer, offset);
+    offset += argBuffer.length;
+  });
   return buffer;
 }
 

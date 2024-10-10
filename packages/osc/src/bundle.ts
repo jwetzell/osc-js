@@ -82,25 +82,25 @@ export function bundleToBuffer(bundle: OSCBundle): Uint8Array {
       const contentSizeBuffer = oscTypeConverterMap.i.toBuffer(contentBuffer.length);
 
       if (contentBuffer && contentSizeBuffer) {
-        const buffer = new Uint8Array(contentSizeBuffer.length + contentBuffer.length)
+        const buffer = new Uint8Array(contentSizeBuffer.length + contentBuffer.length);
         buffer.set(contentSizeBuffer, 0);
-        buffer.set(contentBuffer, contentSizeBuffer.length)
+        buffer.set(contentBuffer, contentSizeBuffer.length);
         contentsBuffers.push(buffer);
-        contentsBuffersTotalLength += buffer.length
+        contentsBuffersTotalLength += buffer.length;
       }
     }
   });
 
-  const buffer = new Uint8Array(headerBuffer.length + timeTagBuffer.length + contentsBuffersTotalLength)
-  let offset = 0
-  buffer.set(headerBuffer, offset)
-  offset += headerBuffer.length
-  buffer.set(timeTagBuffer, offset)
-  offset += timeTagBuffer.length
-  contentsBuffers.forEach((contentBuffer)=>{
-    buffer.set(contentBuffer, offset)
-    offset += contentBuffer.length
-  })
-  
+  const buffer = new Uint8Array(headerBuffer.length + timeTagBuffer.length + contentsBuffersTotalLength);
+  let offset = 0;
+  buffer.set(headerBuffer, offset);
+  offset += headerBuffer.length;
+  buffer.set(timeTagBuffer, offset);
+  offset += timeTagBuffer.length;
+  contentsBuffers.forEach((contentBuffer) => {
+    buffer.set(contentBuffer, offset);
+    offset += contentBuffer.length;
+  });
+
   return buffer;
 }
