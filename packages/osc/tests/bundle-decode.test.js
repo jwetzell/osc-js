@@ -5,24 +5,27 @@ const osc = require('../dist/index');
 const tests = [
   {
     description: 'simple contents single message',
+    bytes: new Uint8Array([
+      ...new TextEncoder().encode('#bundle'),
+      ...new Uint8Array([0x00]),
+      ...new Uint8Array([0, 0, 0, 32, 0, 0, 0, 0]),
+      ...new Uint8Array([0x00, 0x00, 0x00, 0x20]),
+      ...new Uint8Array([
+        0x2f, 0x6f, 0x73, 0x63, 0x69, 0x6c, 0x6c, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x34, 0x2f, 0x66, 0x72, 0x65, 0x71,
+        0x75, 0x65, 0x6e, 0x63, 0x79, 0x00, 0x2c, 0x66, 0x00, 0x00, 0x43, 0xdc, 0x00, 0x00,
+      ]),
+    ]),
     expected: {
       timeTag: [32, 0],
       contents: [{ address: '/oscillator/4/frequency', args: [{ type: 'f', value: 440 }] }],
     },
-    bundle: Buffer.concat([
-      Buffer.from('#bundle', 'ascii'),
-      Buffer.from([0x00]),
-      Buffer.from([0, 0, 0, 32, 0, 0, 0, 0]),
-      Buffer.from('00000020', 'hex'),
-      Buffer.from('2f6f7363696c6c61746f722f342f6672657175656e6379002c66000043dc0000', 'hex'),
-    ]),
   },
 ];
 
 describe('OSC Bundle Decoding', () => {
   tests.forEach((bundleTest) => {
     it(bundleTest.description, () => {
-      const encoded = osc.bundleFromBuffer(bundleTest.bundle);
+      const encoded = osc.bundleFromBuffer(bundleTest.bytes);
       deepEqual(encoded, bundleTest.expected);
     });
   });
