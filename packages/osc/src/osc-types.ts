@@ -173,6 +173,10 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
   },
   r: {
     toBuffer: (color) => {
+      if (color === undefined || color === null){
+        throw new TypeError('osc type r called with undefined or null value');
+      }
+
       if (typeof color === 'object' && 'r' in color && 'g' in color && 'b' in color && 'a' in color) {
         const view = new DataView(new ArrayBuffer(4));
 
@@ -214,6 +218,14 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
         }
       }
       throw new Error('problem converting osc ');
+    },
+  },
+  N: {
+    toBuffer: () => {
+      return new Uint8Array(0);
+    },
+    fromBuffer: (buffer) => {
+      return [null, buffer];
     },
   },
 };
