@@ -1,4 +1,4 @@
-const { deepEqual } = require('assert');
+const { deepEqual, equal } = require('assert');
 const { describe, it } = require('node:test');
 const osc = require('../dist/index');
 
@@ -25,7 +25,8 @@ const tests = [
 describe('OSC Bundle Decoding', () => {
   tests.forEach((bundleTest) => {
     it(bundleTest.description, () => {
-      const encoded = osc.bundleFromBuffer(bundleTest.bytes);
+      const [encoded, remainingBytes] = osc.bundleFromBuffer(bundleTest.bytes);
+      equal(remainingBytes.length, 0)
       deepEqual(encoded, bundleTest.expected);
     });
   });

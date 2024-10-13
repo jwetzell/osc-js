@@ -1,4 +1,4 @@
-const { deepEqual, throws } = require('assert');
+const { deepEqual, throws, equal } = require('assert');
 const { describe, it } = require('node:test');
 const osc = require('../dist/index');
 
@@ -69,7 +69,8 @@ const tests = [
 describe('OSC Message Decoding', () => {
   tests.forEach((messageTest) => {
     it(messageTest.description, () => {
-      const decoded = osc.messageFromBuffer(messageTest.bytes);
+      const [decoded, remainingBytes] = osc.messageFromBuffer(messageTest.bytes);
+      equal(remainingBytes.length, 0)
       deepEqual(decoded, messageTest.expected);
     });
   });
