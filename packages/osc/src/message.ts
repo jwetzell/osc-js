@@ -78,11 +78,14 @@ export function messageFromBuffer(bytes: Uint8Array): [OSCMessage | undefined, U
         }
         argsBuffer = remainingBytes;
       }
-      return [{
-        address,
-        args: oscArgs,
-      }, argsBuffer];
+      return [
+        {
+          address,
+          args: oscArgs,
+        },
+        argsBuffer,
+      ];
     }
   }
-  return [undefined, undefined]
+  return [undefined, undefined];
 }

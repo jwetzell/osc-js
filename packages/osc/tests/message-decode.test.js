@@ -75,7 +75,7 @@ describe('OSC Message Decoding', () => {
   tests.forEach((messageTest) => {
     it(messageTest.description, () => {
       const [decoded, remainingBytes] = osc.messageFromBuffer(messageTest.bytes);
-      equal(remainingBytes.length, 0)
+      equal(remainingBytes.length, 0);
       deepEqual(decoded, messageTest.expected);
     });
   });
