@@ -46,7 +46,7 @@ export function messageToBuffer(message: OSCMessage): Uint8Array {
   return buffer;
 }
 
-export function messageFromBuffer(bytes: Uint8Array): OSCMessage | undefined {
+export function messageFromBuffer(bytes: Uint8Array): [OSCMessage | undefined, Uint8Array | undefined] {
   if (bytes[0] !== 47) {
     throw new Error('osc message must start with a /');
   }
@@ -78,11 +78,11 @@ export function messageFromBuffer(bytes: Uint8Array): OSCMessage | undefined {
         }
         argsBuffer = remainingBytes;
       }
-
-      return {
+      return [{
         address,
         args: oscArgs,
-      };
+      }, argsBuffer];
     }
   }
+  return [undefined, undefined]
 }

@@ -2,7 +2,7 @@ import { messageFromBuffer, messageToBuffer } from './message';
 import { OSCBundle } from './models';
 import { oscTypeConverterMap } from './osc-types';
 
-export function bundleFromBuffer(bytes: Uint8Array): OSCBundle | undefined {
+export function bundleFromBuffer(bytes: Uint8Array): [OSCBundle | undefined, Uint8Array | undefined] {
   if (bytes.length < 8) {
     throw new Error('bundle has to be at least 20 bytes');
   }
@@ -33,13 +33,13 @@ export function bundleFromBuffer(bytes: Uint8Array): OSCBundle | undefined {
 
       if (bundleContentBytes[0] === 35) {
         // # character indicating contents is a bundle
-        const content = bundleFromBuffer(bundleContentBytes);
+        const [content, bytesAfterContent] = bundleFromBuffer(bundleContentBytes);
         if (content) {
           bundleContents.push(content);
         }
       } else if (bundleContentBytes[0] === 47) {
-        const content = messageFromBuffer(bundleContentBytes);
-        if (content) {
+        const [content, bytesAfterContent] = messageFromBuffer(bundleContentBytes);
+        if (content && content !== undefined) {
           bundleContents.push(content);
         }
       } else {
@@ -51,12 +51,13 @@ export function bundleFromBuffer(bytes: Uint8Array): OSCBundle | undefined {
         endOfBundle = true;
       }
     }
+    return [{
+      timeTag,
+      contents: bundleContents,
+    },remainingBytes];
   }
 
-  return {
-    timeTag,
-    contents: bundleContents,
-  };
+  return [undefined, undefined]
 }
 
 export function bundleToBuffer(bundle: OSCBundle): Uint8Array {
