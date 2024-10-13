@@ -10,8 +10,18 @@ program.description('simple util to read osc packets from stdin');
 program.action(() => {
   process.stdin.on('data', (data) => {
     try {
-      const message = osc.messageFromBuffer(data);
-      console.log(JSON.stringify(message));
+
+      let remainingBytes = data
+      while(remainingBytes.length > 0){
+        try {
+          const [message, bytesAfterMessage] = osc.messageFromBuffer(remainingBytes);
+          remainingBytes = bytesAfterMessage
+          console.log(JSON.stringify(message));
+        } catch (error) {
+          console.error({ error: error.toString() });
+        }
+      }
+      
     } catch (error) {
       console.error({ error: error.toString() });
     }
