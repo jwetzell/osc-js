@@ -171,4 +171,49 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
       return [undefined, bytesAfterFractional];
     },
   },
+  r: {
+    toBuffer: (color) => {
+      if (typeof color === 'object' && 'r' in color && 'g' in color && 'b' in color && 'a' in color) {
+        const view = new DataView(new ArrayBuffer(4));
+
+        view.setUint8(0, color.r);
+        view.setUint8(1, color.g);
+        view.setUint8(2, color.b);
+        view.setUint8(3, color.a);
+
+        return new Uint8Array(view.buffer);
+      }
+      throw new TypeError('osc type r called with non OSCColor object');
+    },
+    fromBuffer: (buffer) => {
+      if (buffer.length < 4) {
+        throw new Error('osc color must be at least 4 bytes');
+      }
+
+      const red = buffer[0];
+      const green = buffer[1];
+      const blue = buffer[2];
+      const alpha = buffer[3];
+
+      if (red !== undefined && green !== undefined && blue !== undefined && alpha !== undefined) {
+        if (
+          typeof red === 'number' &&
+          typeof green === 'number' &&
+          typeof blue === 'number' &&
+          typeof alpha === 'number'
+        ) {
+          return [
+            {
+              r: red,
+              g: green,
+              b: blue,
+              a: alpha,
+            },
+            buffer.subarray(4),
+          ];
+        }
+      }
+      throw new Error('problem converting osc ');
+    },
+  },
 };
