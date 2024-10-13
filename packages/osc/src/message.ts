@@ -2,7 +2,8 @@ import { OSCMessage, OSCArg, OSCType } from './models';
 import { oscTypeConverterMap } from './osc-types';
 
 function argsToBuffer(args: OSCArg[]) {
-  const argBuffers: Buffer[] = [];
+  const argBuffers: Uint8Array[] = [];
+  let argBuffersTotalLength = 0;
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
@@ -14,12 +15,19 @@ function argsToBuffer(args: OSCArg[]) {
     const buffer = typeConverter.toBuffer(arg.value);
     if (buffer !== undefined) {
       argBuffers.push(buffer);
+      argBuffersTotalLength += buffer.length;
     }
   }
-  return Buffer.concat(argBuffers);
+  const buffer = new Uint8Array(argBuffersTotalLength);
+  let offset = 0;
+  argBuffers.forEach((argBuffer) => {
+    buffer.set(argBuffer, offset);
+    offset += argBuffer.length;
+  });
+  return buffer;
 }
 
-export function messageToBuffer(message: OSCMessage): Buffer {
+export function messageToBuffer(message: OSCMessage): Uint8Array {
   const addressBuffer = oscTypeConverterMap.s.toBuffer(message.address);
   if (addressBuffer === undefined) {
     throw new Error('problem encoding address');
@@ -31,10 +39,14 @@ export function messageToBuffer(message: OSCMessage): Buffer {
     throw new Error('problem encoding types');
   }
   const argsBuffer = argsToBuffer(message.args);
-  return Buffer.concat([addressBuffer, typesBuffer, argsBuffer]);
+  const buffer = new Uint8Array(addressBuffer.length + typesBuffer.length + argsBuffer.length);
+  buffer.set(addressBuffer, 0);
+  buffer.set(typesBuffer, addressBuffer.length);
+  buffer.set(argsBuffer, addressBuffer.length + typesBuffer.length);
+  return buffer;
 }
 
-export function messageFromBuffer(bytes: Buffer): OSCMessage | undefined {
+export function messageFromBuffer(bytes: Uint8Array): OSCMessage | undefined {
   if (bytes[0] !== 47) {
     throw new Error('osc message must start with a /');
   }
