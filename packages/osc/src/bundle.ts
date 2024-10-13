@@ -22,42 +22,52 @@ export function bundleFromBuffer(bytes: Uint8Array): [OSCBundle | undefined, Uin
 
   let endOfBundle = false;
 
-  let [contentSize, remainingBytes] = oscTypeConverterMap.i.fromBuffer(bytesAfterTimeTag);
-  if (typeof contentSize === 'number') {
-    while (!endOfBundle) {
-      if (remainingBytes.length < contentSize) {
-        throw new Error('bundle does not contain enough data');
-      }
+  // let [contentSize, remainingBytes] = oscTypeConverterMap.i.fromBuffer(bytesAfterTimeTag);
+  let remainingBytes = bytesAfterTimeTag;
 
-      const bundleContentBytes = remainingBytes.subarray(0, contentSize);
+  while (!endOfBundle) {
+    let [contentSize, bytesAfterContentSize] = oscTypeConverterMap.i.fromBuffer(remainingBytes);
 
-      if (bundleContentBytes[0] === 35) {
-        // # character indicating contents is a bundle
-        const [content, bytesAfterContent] = bundleFromBuffer(bundleContentBytes);
-        if (content) {
-          bundleContents.push(content);
-        }
-      } else if (bundleContentBytes[0] === 47) {
-        const [content, bytesAfterContent] = messageFromBuffer(bundleContentBytes);
-        if (content && content !== undefined) {
-          bundleContents.push(content);
-        }
-      } else {
-        throw new Error('bundle contents does not look like a OSC message or bundle');
-      }
-
-      remainingBytes = remainingBytes.subarray(contentSize);
-      if (remainingBytes.length === 0) {
-        endOfBundle = true;
-      }
+    if (typeof contentSize !== 'number') {
+      throw new Error('problem decoding content size');
     }
-    return [{
-      timeTag,
-      contents: bundleContents,
-    },remainingBytes];
+
+    remainingBytes = bytesAfterContentSize;
+
+    if (remainingBytes.length < contentSize) {
+      throw new Error('bundle does not contain enough data');
+    }
+
+    const bundleContentBytes = bytesAfterContentSize.subarray(0, contentSize);
+
+    if (bundleContentBytes[0] === 35) {
+      // # character indicating contents is a bundle
+      const [content, bytesAfterContent] = bundleFromBuffer(bundleContentBytes);
+      if (content) {
+        bundleContents.push(content);
+      }
+    } else if (bundleContentBytes[0] === 47) {
+      const [content, bytesAfterContent] = messageFromBuffer(bundleContentBytes);
+      if (content && content !== undefined) {
+        bundleContents.push(content);
+      }
+    } else {
+      throw new Error('bundle contents does not look like a OSC message or bundle');
+    }
+
+    remainingBytes = bytesAfterContentSize.subarray(contentSize);
+    if (remainingBytes.length === 0) {
+      endOfBundle = true;
+    }
   }
 
-  return [undefined, undefined]
+  return [
+    {
+      timeTag,
+      contents: bundleContents,
+    },
+    remainingBytes,
+  ];
 }
 
 export function bundleToBuffer(bundle: OSCBundle): Uint8Array {
