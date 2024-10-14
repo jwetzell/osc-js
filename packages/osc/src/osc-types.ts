@@ -160,7 +160,7 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
     },
     fromBuffer: (buffer) => {
       if (buffer.length < 8) {
-        throw new Error('osc time tag must be greater than 8 bytes');
+        throw new Error('osc time tag must be at least 8 bytes');
       }
       const [seconds, bytesAfterSeconds] = oscTypeConverterMap.i.fromBuffer(buffer);
       const [fractional, bytesAfterFractional] = oscTypeConverterMap.i.fromBuffer(bytesAfterSeconds);
