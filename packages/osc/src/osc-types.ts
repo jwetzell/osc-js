@@ -173,7 +173,7 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
   },
   r: {
     toBuffer: (color) => {
-      if (color === undefined || color === null){
+      if (color === undefined || color === null) {
         throw new TypeError('osc type r called with undefined or null value');
       }
 
@@ -226,6 +226,14 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
     },
     fromBuffer: (buffer) => {
       return [null, buffer];
+    },
+  },
+  I: {
+    toBuffer: () => {
+      return new Uint8Array();
+    },
+    fromBuffer: (buffer) => {
+      return [Number.MAX_SAFE_INTEGER, buffer];
     },
   },
 };
