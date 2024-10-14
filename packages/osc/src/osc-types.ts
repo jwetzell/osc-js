@@ -254,12 +254,10 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
         throw new Error('osc int64 must be at least 8 bytes');
       }
 
-
-      
       const view = new DataView(new ArrayBuffer(8));
-      buffer.subarray(0,8).forEach((byte, index)=>{
-        view.setUint8(index,byte)
-      })
+      buffer.subarray(0, 8).forEach((byte, index) => {
+        view.setUint8(index, byte);
+      });
 
       return [view.getBigInt64(0), buffer.subarray(8)];
     },
