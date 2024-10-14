@@ -262,4 +262,27 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
       return [view.getBigInt64(0), buffer.subarray(8)];
     },
   },
+  d: {
+    toBuffer: (number) => {
+      if (typeof number === 'number') {
+        const view = new DataView(new ArrayBuffer(8));
+        view.setFloat64(0, number);
+        return new Uint8Array(view.buffer);
+      }
+      throw new TypeError('osc type d toBuffer called with non number value');
+    },
+    fromBuffer: (buffer) => {
+      if (buffer.length < 8) {
+        throw new Error('not enough bytes to read a osc float');
+      }
+      const view = new DataView(new ArrayBuffer(8));
+
+      buffer.subarray(0, 8).forEach((byte, index) => {
+        view.setUint8(index, byte);
+      });
+
+      const value = view.getFloat64(0);
+      return [value, buffer.subarray(8)];
+    },
+  },
 };
