@@ -54,6 +54,11 @@ const tests = [
     expected: { address: '/hello', args: [{ type: 'I', value: Number.MAX_SAFE_INTEGER }] },
   },
   {
+    description: 'simple address int64 arg',
+    bytes: new Uint8Array([47, 104, 101, 108, 108, 111, 0, 0, 44, 104, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255]),
+    expected: { address: '/hello', args: [{ type: 'h', value: 281474976710655n }] },
+  },
+  {
     description: 'osc 1.0 spec example 1',
     bytes: new Uint8Array([
       47, 111, 115, 99, 105, 108, 108, 97, 116, 111, 114, 47, 52, 47, 102, 114, 101, 113, 117, 101, 110, 99, 121, 0, 44,

@@ -236,4 +236,32 @@ export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
       return [Number.MAX_SAFE_INTEGER, buffer];
     },
   },
+  h: {
+    toBuffer: (number) => {
+      const view = new DataView(new ArrayBuffer(8));
+
+      if (typeof number === 'number') {
+        view.setBigInt64(0, BigInt(number));
+      } else if (typeof number === 'bigint') {
+        view.setBigInt64(0, number);
+      } else {
+        throw new TypeError('osc type h toBuffer called with non number or bigint value');
+      }
+      return new Uint8Array(view.buffer);
+    },
+    fromBuffer: (buffer) => {
+      if (buffer.length < 8) {
+        throw new Error('osc int64 must be at least 8 bytes');
+      }
+
+
+      
+      const view = new DataView(new ArrayBuffer(8));
+      buffer.subarray(0,8).forEach((byte, index)=>{
+        view.setUint8(index,byte)
+      })
+
+      return [view.getBigInt64(0), buffer.subarray(8)];
+    },
+  },
 };
