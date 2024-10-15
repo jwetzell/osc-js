@@ -33,12 +33,29 @@ export function messageToBuffer(message: OSCMessage): Uint8Array {
     throw new Error('problem encoding address');
   }
 
-  const typeString = message.args.map((arg) => arg.type).join('');
-  const typesBuffer = oscTypeConverterMap.s.toBuffer(`,${typeString}`);
+  let typeString = ','
+
+  const flatOSCArgs: OSCArg[] = []
+
+  message.args.forEach((oscArg)=> {
+    if(Array.isArray(oscArg)){
+      typeString += '['
+      oscArg.forEach((oscArg)=>{
+        typeString += oscArg.type
+        flatOSCArgs.push(oscArg)
+      })
+      typeString += ']'
+    }else {
+      typeString += oscArg.type
+      flatOSCArgs.push(oscArg)
+    }
+  })
+
+  const typesBuffer = oscTypeConverterMap.s.toBuffer(typeString);
   if (typesBuffer === undefined) {
     throw new Error('problem encoding types');
   }
-  const argsBuffer = argsToBuffer(message.args);
+  const argsBuffer = argsToBuffer(flatOSCArgs);
   const buffer = new Uint8Array(addressBuffer.length + typesBuffer.length + argsBuffer.length);
   buffer.set(addressBuffer, 0);
   buffer.set(typesBuffer, addressBuffer.length);
@@ -51,7 +68,7 @@ export function messageFromBuffer(bytes: Uint8Array): [OSCMessage | undefined, U
     throw new Error('osc message must start with a /');
   }
 
-  const oscArgs: OSCArg[] = [];
+  const oscArgs: (OSCArg | OSCArg[])[] = [];
 
   const [address, bytesAfterAddress] = oscTypeConverterMap.s.fromBuffer(bytes);
   if (typeof address === 'string') {
@@ -61,8 +78,29 @@ export function messageFromBuffer(bytes: Uint8Array): [OSCMessage | undefined, U
         throw new Error('osc type string must start with a ,');
       }
       let argsBuffer = bytesAfterType;
+      let oscArrayArg: OSCArg[] = [];
+      let insideArgArray = false;
       for (let index = 1; index < typeString.length; index++) {
         const argType = typeString.charAt(index) as OSCType;
+
+        if (argType === '['){
+          if (insideArgArray){
+            throw new Error('osc arg array opened without closing previous arg array')
+          }
+          oscArrayArg = [];
+          insideArgArray = true;
+          continue;
+        }
+
+        if (argType === ']'){
+          if (!insideArgArray){
+            throw new Error('osc arg array closed without opening arg array')
+          }
+          oscArgs.push(oscArrayArg);
+          oscArrayArg = [];
+          insideArgArray = false;
+          continue;
+        }
 
         const oscTypeConverter = oscTypeConverterMap[argType];
         if (oscTypeConverter === undefined) {
@@ -74,7 +112,11 @@ export function messageFromBuffer(bytes: Uint8Array): [OSCMessage | undefined, U
             type: argType,
             value: value,
           };
-          oscArgs.push(arg);
+          if(insideArgArray){
+            oscArrayArg.push(arg)
+          }else {
+            oscArgs.push(arg);
+          }
         }
         argsBuffer = remainingBytes;
       }
