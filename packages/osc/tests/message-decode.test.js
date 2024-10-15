@@ -2,7 +2,7 @@ const { deepEqual, throws, equal } = require('assert');
 const { describe, it } = require('node:test');
 const osc = require('../dist/index');
 
-const tests = [
+const goodTests = [
   {
     description: 'simple address no args',
     bytes: new Uint8Array([47, 104, 101, 108, 108, 111, 0, 0, 44, 0, 0, 0]),
@@ -68,9 +68,18 @@ const tests = [
   {
     description: 'simple address array arg',
     bytes: new Uint8Array([
-      47, 104, 101, 108, 108, 111, 0, 0, 44, 91, 100, 105, 93, 0, 0, 0, 0x40, 0x29, 0x87, 0xec, 0x82, 0x74, 0xb9, 0xe6, 0, 0, 3, 232
+      47, 104, 101, 108, 108, 111, 0, 0, 44, 91, 100, 105, 93, 0, 0, 0, 0x40, 0x29, 0x87, 0xec, 0x82, 0x74, 0xb9, 0xe6,
+      0, 0, 3, 232,
     ]),
-    expected: { address: '/hello', args: [[{ type: 'd', value: 12.7654763 }, { type: 'i', value: 1000}]] },
+    expected: {
+      address: '/hello',
+      args: [
+        [
+          { type: 'd', value: 12.7654763 },
+          { type: 'i', value: 1000 },
+        ],
+      ],
+    },
   },
   {
     description: 'osc 1.0 spec example 1',
@@ -100,8 +109,46 @@ const tests = [
   },
 ];
 
+const badTests = [
+  {
+    description: 'bad address',
+    bytes: new Uint8Array([0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x00, 0x2c, 0x66, 0x00, 0x00, 0x42, 0x0a, 0x00, 0x00]),
+    throwsMessage: { name: /^Error$/, message: /must start with/ },
+  },
+
+  {
+    description: 'bad type string',
+    bytes: new Uint8Array([0x2f, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x00, 0x66, 0x00, 0x00, 0x00, 0x42, 0x0a, 0x00]),
+    throwsMessage: { name: /^Error$/, message: /type string must start with/ },
+  },
+  {
+    description: 'unknown type',
+    bytes: new Uint8Array([
+      0x2f, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x00, 0x2c, 0x7a, 0x00, 0x00, 0x42, 0x0a, 0x00, 0x00,
+    ]),
+    throwsMessage: { name: /^Error$/, message: /unknown/ },
+  },
+  {
+    description: 'float arg missing bytes',
+    bytes: new Uint8Array([0x2f, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x00, 0x2c, 0x66, 0x00, 0x00, 0x42, 0x0a, 0x00]),
+    throwsMessage: { name: /^Error$/, message: /not enough bytes/ },
+  },
+  {
+    description: 'int arg missing bytes',
+    bytes: new Uint8Array([0x2f, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x00, 0x2c, 0x69, 0x00, 0x00, 0x00, 0x00, 0x00]),
+    throwsMessage: { name: /^Error$/, message: /not enough bytes/ },
+  },
+  {
+    description: 'blob bytes too small',
+    bytes: new Uint8Array([
+      0x2f, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x00, 0x2c, 0x62, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x62, 0x6c, 0x6f,
+    ]),
+    throwsMessage: { name: /^Error$/, message: /not enough bytes/ },
+  },
+];
+
 describe('OSC Message Decoding', () => {
-  tests.forEach((messageTest) => {
+  goodTests.forEach((messageTest) => {
     it(messageTest.description, () => {
       const [decoded, remainingBytes] = osc.messageFromBuffer(messageTest.bytes);
       equal(remainingBytes.length, 0);
@@ -109,74 +156,11 @@ describe('OSC Message Decoding', () => {
     });
   });
 
-  it('bad address', () => {
-    throws(
-      () => {
-        osc.messageFromBuffer(
-          new Uint8Array([0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x00, 0x2c, 0x66, 0x00, 0x00, 0x42, 0x0a, 0x00, 0x00])
-        );
-      },
-      { name: /^Error$/, message: /must start with/ }
-    );
-  });
-
-  it('bad type string', () => {
-    throws(
-      () => {
-        osc.messageFromBuffer(
-          new Uint8Array([0x2f, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x00, 0x66, 0x00, 0x00, 0x00, 0x42, 0x0a, 0x00])
-        );
-      },
-      { name: /^Error$/, message: /type string must start with/ }
-    );
-  });
-
-  it('unknown type', () => {
-    throws(
-      () => {
-        osc.messageFromBuffer(
-          new Uint8Array([
-            0x2f, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x00, 0x2c, 0x7a, 0x00, 0x00, 0x42, 0x0a, 0x00, 0x00,
-          ])
-        );
-      },
-      { name: /^Error$/, message: /unknown/ }
-    );
-  });
-
-  it('float arg missing bytes', () => {
-    throws(
-      () => {
-        osc.messageFromBuffer(
-          new Uint8Array([0x2f, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x00, 0x2c, 0x66, 0x00, 0x00, 0x42, 0x0a, 0x00])
-        );
-      },
-      { name: /^Error$/, message: /not enough bytes/ }
-    );
-  });
-
-  it('int arg missing bytes', () => {
-    throws(
-      () => {
-        osc.messageFromBuffer(
-          new Uint8Array([0x2f, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x00, 0x2c, 0x69, 0x00, 0x00, 0x00, 0x00, 0x00])
-        );
-      },
-      { name: /^Error$/, message: /not enough bytes/ }
-    );
-  });
-
-  it('blob bytes too small', () => {
-    throws(
-      () => {
-        osc.messageFromBuffer(
-          new Uint8Array([
-            0x2f, 0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x00, 0x2c, 0x62, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x62, 0x6c,
-            0x6f,
-          ])
-        );
-      },
-      { name: /^Error$/, message: /not enough bytes/ }
-    );
+  badTests.forEach((messageTest) => {
+    it(messageTest.description, () => {
+      throws(() => {
+        osc.messageFromBuffer(messageTest.bytes);
+      }, messageTest.throwsMessage);
+    });
   });
 });

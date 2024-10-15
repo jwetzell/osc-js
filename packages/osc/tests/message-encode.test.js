@@ -2,7 +2,7 @@ const { deepEqual, throws } = require('assert');
 const { describe, it } = require('node:test');
 const osc = require('../dist/index');
 
-const tests = [
+const goodTests = [
   {
     description: 'simple address no args',
     message: { address: '/hello', args: [] },
@@ -62,9 +62,18 @@ const tests = [
   },
   {
     description: 'simple address array arg',
-    message: { address: '/hello', args: [[{ type: 'd', value: 12.7654763 }, { type: 'i', value: 1000}]] },
+    message: {
+      address: '/hello',
+      args: [
+        [
+          { type: 'd', value: 12.7654763 },
+          { type: 'i', value: 1000 },
+        ],
+      ],
+    },
     expected: new Uint8Array([
-      47, 104, 101, 108, 108, 111, 0, 0, 44, 91, 100, 105, 93, 0, 0, 0, 0x40, 0x29, 0x87, 0xec, 0x82, 0x74, 0xb9, 0xe6, 0, 0, 3, 232
+      47, 104, 101, 108, 108, 111, 0, 0, 44, 91, 100, 105, 93, 0, 0, 0, 0x40, 0x29, 0x87, 0xec, 0x82, 0x74, 0xb9, 0xe6,
+      0, 0, 3, 232,
     ]),
   },
   {
@@ -95,55 +104,56 @@ const tests = [
   },
 ];
 
+const badTests = [
+  {
+    description: 'bad string arg',
+    message: { address: '/address', args: [{ type: 's', value: 123 }] },
+    throwsMessage: { name: /^TypeError$/, message: /non string/  },
+  },
+
+  {
+    description: 'bad integer arg',
+    message: { address: '/address', args: [{ type: 'i', value: 'hi' }] },
+    throwsMessage: { name: /^TypeError$/, message: /non number/  },
+  },
+  {
+    description: 'bad float arg',
+    message: { address: '/address', args: [{ type: 'f', value: 'hi' }] },
+    throwsMessage: { name: /^TypeError$/, message: /non number/ },
+  },
+  {
+    description: 'bad blob arg',
+    message: { address: '/address', args: [{ type: 'b', value: 123 }] },
+    throwsMessage: { name: /^TypeError$/, message: /non Uint8Array/ },
+  },
+  {
+    description: 'unknown arg type',
+    message: { address: '/address', args: [{ type: 'z', value: 123 }] },
+    throwsMessage: { name: /^TypeError$/, message: /unknown type z/ },
+  },
+  {
+    description: 'address that does not start with / should throw',
+    message: { address: 'address', args: [] },
+    throwsMessage: {
+      name: /^Error$/,
+      message: 'osc message must start with a /',
+    },
+  }
+];
+
 describe('OSC Message Encoding', () => {
-  tests.forEach((messageTest) => {
+  goodTests.forEach((messageTest) => {
     it(messageTest.description, () => {
       const encoded = osc.messageToBuffer(messageTest.message);
       deepEqual(encoded, messageTest.expected);
     });
   });
-  it('bad string arg', () => {
-    throws(
-      () => {
-        osc.messageToBuffer({ address: '/address', args: [{ type: 's', value: 123 }] });
-      },
-      { name: /^TypeError$/ }
-    );
-  });
 
-  it('bad integer arg', () => {
-    throws(
-      () => {
-        osc.messageToBuffer({ address: '/address', args: [{ type: 'i', value: 'hi' }] });
-      },
-      { name: /^TypeError$/ }
-    );
-  });
-
-  it('bad float arg', () => {
-    throws(
-      () => {
-        osc.messageToBuffer({ address: '/address', args: [{ type: 'f', value: 'hi' }] });
-      },
-      { name: /^TypeError$/ }
-    );
-  });
-
-  it('bad blob arg', () => {
-    throws(
-      () => {
-        osc.messageToBuffer({ address: '/address', args: [{ type: 'b', value: 123 }] });
-      },
-      { name: /^TypeError$/ }
-    );
-  });
-
-  it('unknown arg type', () => {
-    throws(
-      () => {
-        osc.messageToBuffer({ address: '/address', args: [{ type: 'z', value: 123 }] });
-      },
-      { name: /^TypeError$/ }
-    );
+  badTests.forEach((messageTest) => {
+    it(messageTest.description, () => {
+      throws(() => {
+        osc.messageToBuffer(messageTest.message);
+      }, messageTest.throwsMessage);
+    });
   });
 });
