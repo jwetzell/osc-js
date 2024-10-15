@@ -37,23 +37,23 @@ export function messageToBuffer(message: OSCMessage): Uint8Array {
     throw new Error('problem encoding address');
   }
 
-  let typeString = ','
+  let typeString = ',';
 
-  const flatOSCArgs: OSCArg[] = []
+  const flatOSCArgs: OSCArg[] = [];
 
-  message.args.forEach((oscArg)=> {
-    if(Array.isArray(oscArg)){
-      typeString += '['
-      oscArg.forEach((oscArg)=>{
-        typeString += oscArg.type
-        flatOSCArgs.push(oscArg)
-      })
-      typeString += ']'
-    }else {
-      typeString += oscArg.type
-      flatOSCArgs.push(oscArg)
+  message.args.forEach((oscArg) => {
+    if (Array.isArray(oscArg)) {
+      typeString += '[';
+      oscArg.forEach((oscArg) => {
+        typeString += oscArg.type;
+        flatOSCArgs.push(oscArg);
+      });
+      typeString += ']';
+    } else {
+      typeString += oscArg.type;
+      flatOSCArgs.push(oscArg);
     }
-  })
+  });
 
   const typesBuffer = oscTypeConverterMap.s.toBuffer(typeString);
   if (typesBuffer === undefined) {
@@ -87,18 +87,18 @@ export function messageFromBuffer(bytes: Uint8Array): [OSCMessage | undefined, U
       for (let index = 1; index < typeString.length; index++) {
         const argType = typeString.charAt(index) as OSCType;
 
-        if (argType === '['){
-          if (insideArgArray){
-            throw new Error('osc arg array opened without closing previous arg array')
+        if (argType === '[') {
+          if (insideArgArray) {
+            throw new Error('osc arg array opened without closing previous arg array');
           }
           oscArrayArg = [];
           insideArgArray = true;
           continue;
         }
 
-        if (argType === ']'){
-          if (!insideArgArray){
-            throw new Error('osc arg array closed without opening arg array')
+        if (argType === ']') {
+          if (!insideArgArray) {
+            throw new Error('osc arg array closed without opening arg array');
           }
           oscArgs.push(oscArrayArg);
           oscArrayArg = [];
@@ -116,9 +116,9 @@ export function messageFromBuffer(bytes: Uint8Array): [OSCMessage | undefined, U
             type: argType,
             value: value,
           };
-          if(insideArgArray){
-            oscArrayArg.push(arg)
-          }else {
+          if (insideArgArray) {
+            oscArrayArg.push(arg);
+          } else {
             oscArgs.push(arg);
           }
         }

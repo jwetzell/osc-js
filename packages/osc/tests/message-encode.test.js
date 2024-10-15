@@ -108,13 +108,13 @@ const badTests = [
   {
     description: 'bad string arg',
     message: { address: '/address', args: [{ type: 's', value: 123 }] },
-    throwsMessage: { name: /^TypeError$/, message: /non string/  },
+    throwsMessage: { name: /^TypeError$/, message: /non string/ },
   },
 
   {
     description: 'bad integer arg',
     message: { address: '/address', args: [{ type: 'i', value: 'hi' }] },
-    throwsMessage: { name: /^TypeError$/, message: /non number/  },
+    throwsMessage: { name: /^TypeError$/, message: /non number/ },
   },
   {
     description: 'bad float arg',
@@ -138,7 +138,7 @@ const badTests = [
       name: /^Error$/,
       message: 'osc message must start with a /',
     },
-  }
+  },
 ];
 
 describe('OSC Message Encoding', () => {
