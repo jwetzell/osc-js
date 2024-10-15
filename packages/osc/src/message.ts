@@ -28,6 +28,10 @@ function argsToBuffer(args: OSCArg[]) {
 }
 
 export function messageToBuffer(message: OSCMessage): Uint8Array {
+  if (!message.address.startsWith('/')) {
+    throw new Error('osc message must start with a /');
+  }
+
   const addressBuffer = oscTypeConverterMap.s.toBuffer(message.address);
   if (addressBuffer === undefined) {
     throw new Error('problem encoding address');
