@@ -1,4 +1,4 @@
-export type OSCType = 's' | 'i' | 'f' | 'b' | 'T' | 'F' | 't' | 'r' | 'N';
+export type OSCType = 's' | 'i' | 'f' | 'b' | 'T' | 'F' | 't' | 'r' | 'N' | '[' | ']';
 export type OSCArg = {
   type: OSCType;
   value: string | number | Uint8Array | boolean | OSCTimeTag | OSCColor | bigint | null;
@@ -20,7 +20,7 @@ export type OSCBundle = {
 
 export type OSCMessage = {
   address: string;
-  args: OSCArg[];
+  args: (OSCArg | OSCArg[])[];
 };
 
 export type OSCTypeConverter = {

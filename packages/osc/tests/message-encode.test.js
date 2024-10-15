@@ -61,6 +61,13 @@ const tests = [
     ]),
   },
   {
+    description: 'simple address array arg',
+    message: { address: '/hello', args: [[{ type: 'd', value: 12.7654763 }, { type: 'i', value: 1000}]] },
+    expected: new Uint8Array([
+      47, 104, 101, 108, 108, 111, 0, 0, 44, 91, 100, 105, 93, 0, 0, 0, 0x40, 0x29, 0x87, 0xec, 0x82, 0x74, 0xb9, 0xe6, 0, 0, 3, 232
+    ]),
+  },
+  {
     description: 'osc 1.0 spec example 1',
     message: { address: '/oscillator/4/frequency', args: [{ type: 'f', value: 440 }] },
     expected: new Uint8Array([

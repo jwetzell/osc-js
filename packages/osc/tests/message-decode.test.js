@@ -66,6 +66,13 @@ const tests = [
     expected: { address: '/hello', args: [{ type: 'd', value: 12.7654763 }] },
   },
   {
+    description: 'simple address array arg',
+    bytes: new Uint8Array([
+      47, 104, 101, 108, 108, 111, 0, 0, 44, 91, 100, 105, 93, 0, 0, 0, 0x40, 0x29, 0x87, 0xec, 0x82, 0x74, 0xb9, 0xe6, 0, 0, 3, 232
+    ]),
+    expected: { address: '/hello', args: [[{ type: 'd', value: 12.7654763 }, { type: 'i', value: 1000}]] },
+  },
+  {
     description: 'osc 1.0 spec example 1',
     bytes: new Uint8Array([
       47, 111, 115, 99, 105, 108, 108, 97, 116, 111, 114, 47, 52, 47, 102, 114, 101, 113, 117, 101, 110, 99, 121, 0, 44,
