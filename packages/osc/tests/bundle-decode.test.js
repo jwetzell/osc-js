@@ -1,8 +1,8 @@
-const { deepEqual, equal } = require('assert');
+const { deepEqual, equal, throws } = require('assert');
 const { describe, it } = require('node:test');
 const osc = require('../dist/index');
 
-const tests = [
+const goodTests = [
   {
     description: 'simple contents single message',
     bytes: new Uint8Array([
@@ -18,6 +18,34 @@ const tests = [
     expected: {
       timeTag: [32, 0],
       contents: [{ address: '/oscillator/4/frequency', args: [{ type: 'f', value: 440 }] }],
+    },
+  },
+  {
+    description: 'simple contents single bundle',
+    bytes: new Uint8Array([
+      ...new TextEncoder().encode('#bundle'),
+      ...new Uint8Array([0x00]),
+      ...new Uint8Array([0, 0, 0, 32, 0, 0, 0, 0]),
+      ...new Uint8Array([0x00, 0x00, 0x00, 0x34]),
+      ...new Uint8Array([
+        ...new TextEncoder().encode('#bundle'),
+        ...new Uint8Array([0x00]),
+        ...new Uint8Array([0, 0, 0, 32, 0, 0, 0, 0]),
+        ...new Uint8Array([0x00, 0x00, 0x00, 0x20]),
+        ...new Uint8Array([
+          0x2f, 0x6f, 0x73, 0x63, 0x69, 0x6c, 0x6c, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x34, 0x2f, 0x66, 0x72, 0x65, 0x71,
+          0x75, 0x65, 0x6e, 0x63, 0x79, 0x00, 0x2c, 0x66, 0x00, 0x00, 0x43, 0xdc, 0x00, 0x00,
+        ]),
+      ]),
+    ]),
+    expected: {
+      timeTag: [32, 0],
+      contents: [
+        {
+          timeTag: [32, 0],
+          contents: [{ address: '/oscillator/4/frequency', args: [{ type: 'f', value: 440 }] }],
+        },
+      ],
     },
   },
   {
@@ -88,12 +116,85 @@ const tests = [
   },
 ];
 
-describe('OSC Bundle Decoding', () => {
-  tests.forEach((bundleTest) => {
+const badTests = [
+  {
+    description: 'bad bundle header',
+    bytes: new Uint8Array([
+      ...new TextEncoder().encode('bundle'),
+      ...new Uint8Array([0x00]),
+      ...new Uint8Array([0, 0, 0, 32, 0, 0, 0, 0]),
+      ...new Uint8Array([0x00, 0x00, 0x00, 0x20]),
+      ...new Uint8Array([
+        0x2f, 0x6f, 0x73, 0x63, 0x69, 0x6c, 0x6c, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x34, 0x2f, 0x66, 0x72, 0x65, 0x71,
+        0x75, 0x65, 0x6e, 0x63, 0x79, 0x00, 0x2c, 0x66, 0x00, 0x00, 0x43, 0xdc, 0x00, 0x00,
+      ]),
+    ]),
+    throwsMessage: {
+      name: /^Error$/,
+      message: 'bundle must start with #bundle',
+    },
+  },
+  {
+    description: 'incomplete bundle',
+    bytes: new Uint8Array([
+      ...new TextEncoder().encode('#bundle'),
+      ...new Uint8Array([0x00]),
+      ...new Uint8Array([0, 0, 0, 32, 0, 0, 0, 0]),
+    ]),
+    throwsMessage: {
+      name: /^Error$/,
+      message: 'bundle has to be at least 20 bytes',
+    },
+  },
+  {
+    description: 'bundle not enough bytes',
+    bytes: new Uint8Array([
+      ...new TextEncoder().encode('#bundle'),
+      ...new Uint8Array([0x00]),
+      ...new Uint8Array([0, 0, 0, 32, 0, 0, 0, 0]),
+      ...new Uint8Array([0x00, 0x00, 0x00, 0x20]),
+      ...new Uint8Array([0x2f, 0x6f, 0x73, 0x63, 0x69, 0x6c, 0x6c, 0x61]),
+    ]),
+    throwsMessage: {
+      name: /^Error$/,
+      message: 'bundle does not contain enough data',
+    },
+  },
+  {
+    description: 'bad bundle contents',
+    bytes: new Uint8Array([
+      ...new TextEncoder().encode('#bundle'),
+      ...new Uint8Array([0x00]),
+      ...new Uint8Array([0, 0, 0, 32, 0, 0, 0, 0]),
+      ...new Uint8Array([0x00, 0x00, 0x00, 0x20]),
+      ...new Uint8Array([
+        0x2a, 0x6f, 0x73, 0x63, 0x69, 0x6c, 0x6c, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x34, 0x2f, 0x66, 0x72, 0x65, 0x71,
+        0x75, 0x65, 0x6e, 0x63, 0x79, 0x00, 0x2c, 0x66, 0x00, 0x00, 0x43, 0xdc, 0x00, 0x00,
+      ]),
+    ]),
+    throwsMessage: {
+      name: /^Error$/,
+      message: 'bundle contents does not look like a OSC message or bundle',
+    },
+  },
+];
+
+describe('OSC Bundle Decoding Pass', () => {
+  goodTests.forEach((bundleTest) => {
     it(bundleTest.description, () => {
       const [encoded, remainingBytes] = osc.bundleFromBuffer(bundleTest.bytes);
       equal(remainingBytes.length, 0);
       deepEqual(encoded, bundleTest.expected);
+    });
+  });
+});
+
+describe('OSC Bundle Decoding Throws', () => {
+  badTests.forEach((bundleTest) => {
+    it(bundleTest.description, () => {
+      throws(() => {
+        osc.bundleFromBuffer(bundleTest.bytes);
+      }, bundleTest.throwsMessage);
     });
   });
 });
