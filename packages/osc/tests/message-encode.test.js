@@ -141,14 +141,16 @@ const badTests = [
   },
 ];
 
-describe('OSC Message Encoding', () => {
+describe('OSC Message Encoding Pass', () => {
   goodTests.forEach((messageTest) => {
     it(messageTest.description, () => {
       const encoded = osc.messageToBuffer(messageTest.message);
       deepEqual(encoded, messageTest.expected);
     });
   });
+});
 
+describe('OSC Message Encoding Throws', () => {
   badTests.forEach((messageTest) => {
     it(messageTest.description, () => {
       throws(() => {

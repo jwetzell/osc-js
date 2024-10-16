@@ -81,7 +81,14 @@ const goodTests = [
       ],
     },
   },
+  {
+    description: 'simple address no type string',
+    bytes: new Uint8Array([47, 104, 101, 108, 108, 111, 0, 0]),
     expected: {
+      address: '/hello',
+      args: [],
+    },
+  },
   {
     description: 'osc 1.0 spec example 1',
     bytes: new Uint8Array([
@@ -146,9 +153,16 @@ const badTests = [
     ]),
     throwsMessage: { name: /^Error$/, message: /not enough bytes/ },
   },
+  {
+    description: 'float64 bytes too small',
+    bytes: new Uint8Array([
+      47, 104, 101, 108, 108, 111, 0, 0, 44, 100, 0, 0, 0x40, 0x29, 0x87, 0xec, 0x82, 0x74, 0xb9,
+    ]),
+    throwsMessage: { name: /^Error$/, message: /not enough bytes/ },
+  },
 ];
 
-describe('OSC Message Decoding', () => {
+describe('OSC Message Decoding Pass', () => {
   goodTests.forEach((messageTest) => {
     it(messageTest.description, () => {
       const [decoded, remainingBytes] = osc.messageFromBuffer(messageTest.bytes);
@@ -156,7 +170,9 @@ describe('OSC Message Decoding', () => {
       deepEqual(decoded, messageTest.expected);
     });
   });
+});
 
+describe('OSC Message Decoding Throws', () => {
   badTests.forEach((messageTest) => {
     it(messageTest.description, () => {
       throws(() => {
