@@ -3,7 +3,7 @@ import { OSCBundle } from './models';
 import { oscTypeConverterMap } from './osc-types';
 
 export function bundleFromBuffer(bytes: Uint8Array): [OSCBundle | undefined, Uint8Array | undefined] {
-  if (bytes.length < 8) {
+  if (bytes.length < 20) {
     throw new Error('bundle has to be at least 20 bytes');
   }
 
