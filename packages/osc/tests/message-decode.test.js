@@ -81,6 +81,7 @@ const goodTests = [
       ],
     },
   },
+    expected: {
   {
     description: 'osc 1.0 spec example 1',
     bytes: new Uint8Array([

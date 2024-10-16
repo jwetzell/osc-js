@@ -76,6 +76,17 @@ export function messageFromBuffer(bytes: Uint8Array): [OSCMessage | undefined, U
 
   const [address, bytesAfterAddress] = oscTypeConverterMap.s.fromBuffer(bytes);
   if (typeof address === 'string') {
+    if(bytesAfterAddress.length === 0){
+      // NOTE(jwetzell): OSC 1.0 spec says that messages without a type string should be allowed
+      return [
+        {
+          address,
+          args: []
+        },
+        bytesAfterAddress
+      ]
+    }
+
     let [typeString, bytesAfterType] = oscTypeConverterMap.s.fromBuffer(bytesAfterAddress);
     if (typeof typeString === 'string') {
       if (!typeString.startsWith(',')) {
