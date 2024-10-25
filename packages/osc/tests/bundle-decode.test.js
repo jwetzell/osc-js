@@ -1,6 +1,6 @@
 const { deepEqual, equal, throws } = require('assert');
 const { describe, it } = require('node:test');
-const osc = require('../dist/index');
+const osc = require('../dist/cjs/index');
 
 const goodTests = [
   {
