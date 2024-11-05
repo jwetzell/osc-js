@@ -2,8 +2,8 @@
 
 const { Option, program } = require('commander');
 const slip = require('slip');
-const { argToTypedArg } = require('./utils');
 const osc = require('@jwetzell/osc');
+const { argToTypedArg } = require('./utils');
 const packageInfo = require('../package.json');
 
 program.name(packageInfo.name);
