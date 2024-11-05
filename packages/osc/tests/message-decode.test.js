@@ -155,9 +155,7 @@ const badTests = [
   },
   {
     description: 'float64 missing bytes',
-    bytes: new Uint8Array([
-      47, 104, 101, 108, 108, 111, 0, 0, 44, 100, 0, 0, 0x40, 0x29, 0x87, 0xec, 0x82, 0x74, 0xb9,
-    ]),
+    bytes: new Uint8Array([47, 104, 101, 108, 108, 111, 0, 0, 44, 100, 0, 0, 0x40, 0x29, 0x87, 0xec, 0x82, 0x74, 0xb9]),
     throwsMessage: { name: /^Error$/, message: /not enough bytes/ },
   },
   {
@@ -170,7 +168,6 @@ const badTests = [
     bytes: new Uint8Array([47, 104, 101, 108, 108, 111, 0, 0, 44, 114, 0, 0, 20, 21, 22]),
     throwsMessage: { name: /^Error$/, message: /must be at least/ },
   },
-  
 ];
 
 describe('OSC Message Decoding Pass', () => {
