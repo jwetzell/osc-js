@@ -12,7 +12,7 @@ export function bundleFromBuffer(bytes: Uint8Array): [OSCBundle | undefined, Uin
   }
 
   const [bundleHeader, bytesAfterHeader] = oscTypeConverterMap.s.fromBuffer(bytes);
-  let [timeTag, bytesAfterTimeTag] = oscTypeConverterMap.t.fromBuffer(bytesAfterHeader);
+  const [timeTag, bytesAfterTimeTag] = oscTypeConverterMap.t.fromBuffer(bytesAfterHeader);
 
   if (!Array.isArray(timeTag)) {
     throw new Error('problem getting bundle time tag');
@@ -26,7 +26,7 @@ export function bundleFromBuffer(bytes: Uint8Array): [OSCBundle | undefined, Uin
   let remainingBytes = bytesAfterTimeTag;
 
   while (!endOfBundle) {
-    let [contentSize, bytesAfterContentSize] = oscTypeConverterMap.i.fromBuffer(remainingBytes);
+    const [contentSize, bytesAfterContentSize] = oscTypeConverterMap.i.fromBuffer(remainingBytes);
 
     if (typeof contentSize !== 'number') {
       throw new Error('problem decoding content size');

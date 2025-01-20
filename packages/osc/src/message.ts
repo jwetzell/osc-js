@@ -87,7 +87,7 @@ export function messageFromBuffer(bytes: Uint8Array): [OSCMessage | undefined, U
       ];
     }
 
-    let [typeString, bytesAfterType] = oscTypeConverterMap.s.fromBuffer(bytesAfterAddress);
+    const [typeString, bytesAfterType] = oscTypeConverterMap.s.fromBuffer(bytesAfterAddress);
     if (typeof typeString === 'string') {
       if (!typeString.startsWith(',')) {
         throw new Error('osc type string must start with a ,');
