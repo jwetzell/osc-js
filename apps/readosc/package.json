@@ -21,6 +21,6 @@
   "license": "MIT",
   "dependencies": {
     "@jwetzell/osc": "1.0.0",
-    "commander": "^13.0.0"
+    "commander": "^13.1.0"
   }
 }
