@@ -4,3 +4,15 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+  - package-ecosystem: 'npm'
+    directory: 'apps/makeosc'
+    schedule:
+      interval: 'weekly'
+  - package-ecosystem: 'npm'
+    directory: 'apps/readosc'
+    schedule:
+      interval: 'weekly'
+  - package-ecosystem: 'npm'
+    directory: 'apps/sendosc'
+    schedule:
+      interval: 'weekly'
