@@ -1,6 +1,6 @@
-import { messageFromBuffer, messageToBuffer } from './message';
-import { OSCBundle } from './models';
-import { oscTypeConverterMap } from './osc-types';
+import { messageFromBuffer, messageToBuffer } from './message.js';
+import { OSCBundle } from './models.js';
+import { oscTypeConverterMap } from './osc-types.js';
 
 export function bundleFromBuffer(bytes: Uint8Array): [OSCBundle | undefined, Uint8Array | undefined] {
   if (bytes.length < 20) {

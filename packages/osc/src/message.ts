@@ -1,5 +1,5 @@
-import { OSCMessage, OSCArg, OSCType } from './models';
-import { oscTypeConverterMap } from './osc-types';
+import { OSCMessage, OSCArg, OSCType } from './models.js';
+import { oscTypeConverterMap } from './osc-types.js';
 
 function argsToBuffer(args: OSCArg[]) {
   const argBuffers: Uint8Array[] = [];

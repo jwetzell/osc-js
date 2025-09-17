@@ -1,10 +1,10 @@
-import { bundleFromBuffer } from './bundle';
-import { messageFromBuffer } from './message';
-import { OSCBundle, OSCMessage } from './models';
+import { bundleFromBuffer } from './bundle.js';
+import { messageFromBuffer } from './message.js';
+import { OSCBundle, OSCMessage } from './models.js';
 
-export * from './models';
-export * from './message';
-export * from './bundle';
+export * from './models.js';
+export * from './message.js';
+export * from './bundle.js';
 
 export function fromBuffer(bytes: Uint8Array): [OSCBundle | OSCMessage | undefined, Uint8Array | undefined] {
   if (bytes[0] === 47) {

@@ -1,4 +1,4 @@
-import { OSCTypeConverter, OSCTimeTag } from './models';
+import { OSCTypeConverter, OSCTimeTag } from './models.js';
 
 export const oscTypeConverterMap: { [key: string]: OSCTypeConverter } = {
   s: {
