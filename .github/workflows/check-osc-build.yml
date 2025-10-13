@@ -6,7 +6,7 @@ on:
     paths:
       - 'packages/osc/**'
 jobs:
-  build-webui:
+  check-build:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
