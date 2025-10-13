@@ -20,5 +20,3 @@ jobs:
         run: npm ci --workspace=sendosc
       - name: Publish to NPM
         run: npm publish --provenance --access=public --workspace=sendosc
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
