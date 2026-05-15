@@ -1,6 +1,6 @@
 const { deepEqual, equal, throws } = require('assert');
 const { describe, it } = require('node:test');
-const osc = require('../');
+const osc = require('@jwetzell/osc');
 
 const goodTests = [
   {
