@@ -1,6 +1,6 @@
 import { bundleFromBuffer } from './bundle.js';
 import { messageFromBuffer } from './message.js';
-import { OSCBundle, OSCMessage } from './models.js';
+import type { OSCBundle, OSCMessage } from './models.js';
 
 export * from './models.js';
 export * from './message.js';

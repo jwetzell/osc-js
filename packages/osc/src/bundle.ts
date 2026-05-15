@@ -1,5 +1,5 @@
 import { messageFromBuffer, messageToBuffer } from './message.js';
-import { OSCBundle } from './models.js';
+import { type OSCBundle } from './models.js';
 import { oscTypeConverterMap } from './osc-types.js';
 
 export function bundleFromBuffer(bytes: Uint8Array): [OSCBundle | undefined, Uint8Array | undefined] {
@@ -11,7 +11,7 @@ export function bundleFromBuffer(bytes: Uint8Array): [OSCBundle | undefined, Uin
     throw new Error('bundle must start with #bundle');
   }
 
-  const [bundleHeader, bytesAfterHeader] = oscTypeConverterMap.s.fromBuffer(bytes);
+  const [, bytesAfterHeader] = oscTypeConverterMap.s.fromBuffer(bytes);
   const [timeTag, bytesAfterTimeTag] = oscTypeConverterMap.t.fromBuffer(bytesAfterHeader);
 
   if (!Array.isArray(timeTag)) {
@@ -42,12 +42,12 @@ export function bundleFromBuffer(bytes: Uint8Array): [OSCBundle | undefined, Uin
 
     if (bundleContentBytes[0] === 35) {
       // # character indicating contents is a bundle
-      const [content, bytesAfterContent] = bundleFromBuffer(bundleContentBytes);
+      const [content] = bundleFromBuffer(bundleContentBytes);
       if (content) {
         bundleContents.push(content);
       }
     } else if (bundleContentBytes[0] === 47) {
-      const [content, bytesAfterContent] = messageFromBuffer(bundleContentBytes);
+      const [content] = messageFromBuffer(bundleContentBytes);
       if (content && content !== undefined) {
         bundleContents.push(content);
       }

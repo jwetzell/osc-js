@@ -1,4 +1,4 @@
-import { OSCMessage, OSCArg, OSCType } from './models.js';
+import type { OSCMessage, OSCArg, OSCType } from './models.js';
 import { oscTypeConverterMap } from './osc-types.js';
 
 function argsToBuffer(args: OSCArg[]) {
