@@ -1,5 +1,4 @@
 # osc-js
-Collection of OSC things written in JS/TS
+Typescript implementation of OSC things written in TS and distributed as both ESM and CJS modules
 
 - [osc encoding/decoding library](./packages/osc/)
-- [cli for sending osc messages](./apps/sendosc/)
