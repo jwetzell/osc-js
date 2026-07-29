@@ -22,3 +22,7 @@ jobs:
 
       - name: Publish to NPM
         run: npm publish --provenance --access=public --workspace @jwetzell/osc
+      - name: Publish to JSR
+        working-directory: ./packages/osc
+        run: npx jsr publish
+
