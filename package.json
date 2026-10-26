@@ -12,7 +12,6 @@
     "url": "git+https://github.com/jwetzell/osc-js.git"
   },
   "scripts": {
-    "lint:check": "eslint ./",
     "format:check": "prettier ./ --check",
     "format:write": "prettier ./ --write"
   },
@@ -20,12 +19,7 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@eslint/js": "10.0.1",
-    "eslint": "10.13.0",
-    "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-prettier": "5.5.7",
     "globals": "17.13.0",
-    "prettier": "3.9.10",
-    "typescript-eslint": "8.71.2"
+    "prettier": "3.9.10"
   }
 }
